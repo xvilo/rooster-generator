@@ -1,6 +1,8 @@
 var express = require('express'),
 		app = express(),
 		server = require('http').createServer(app);
+		
+require('newrelic');
 
 var bodyParser = require('body-parser'),
 		ical = require('ical-generator'),
@@ -57,6 +59,7 @@ cibap = {
 	},
 	ical: function(req, res, next) {
 		//Genereer rooster
+		console.log('generating schedule for '+req.params.type);
 		cal.setDomain('cibaptothetop.nl').setName('Cibap: '+req.params.type);
 		var host = settings.api+'?klas='+req.params.type+'&soort='+req.params.soort+'&week='+settings.week+'&jaar='+settings.jaar;
 
