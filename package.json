@@ -1,0 +1,19 @@
+{
+  "name": "cibap_rooster",
+  "version": "0.1.0",
+  "description": "get them all!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jeroen",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "1.12.x",
+    "express": "4.11.x",
+    "ical-generator": "0.2.x",
+    "moment": "2.9.x",
+    "request": "2.53.x"
+  },
+  "devDependencies": {}
+}
