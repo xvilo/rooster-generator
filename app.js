@@ -1,8 +1,6 @@
 var express = require('express'),
 		app = express(),
 		server = require('http').createServer(app);
-		
-require('newrelic');
 
 var bodyParser = require('body-parser'),
 		ical = require('ical-generator'),
@@ -14,12 +12,12 @@ var bodyParser = require('body-parser'),
 settings = {
 	port: 4000,
 	api: 'https://xvilo.com/cibap/json.php',
-	jaar: moment().format('YYYY'),
+	year: moment().format('YYYY'),
 	week: moment().week(),
 	triggerAlert: 600
 }
 
-lesuuren = {
+timetable = {
 	"0":{"start": {"hour": 8, "minute": 45}, "end": {"hour": 9, "minute": 15}},
 	"1":{"start": {"hour": 9, "minute": 15}, "end": {"hour": 9, "minute": 45}},
 	"2":{"start": {"hour": 9, "minute": 45}, "end": {"hour": 10, "minute": 15}},
@@ -54,16 +52,14 @@ cibap = {
 		console.log('Server is running on port: '+settings.port);
 
 		app.get('/:soort/:type', cibap.ical);
-
 		var event = ical().createEvent();
 	},
 	ical: function(req, res, next) {
-		//Genereer rooster
 		console.log('generating schedule for '+req.params.type);
 		cal.setDomain('cibaptothetop.nl').setName('Cibap: '+req.params.type);
-		var host = settings.api+'?klas='+req.params.type+'&soort='+req.params.soort+'&week='+settings.week+'&jaar='+settings.jaar;
+		var host = settings.api+'?klas='+req.params.type+'&soort='+req.params.soort+'&week='+settings.week+'&jaar='+settings.year;
 
-		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+		process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 		request(host, function(error, response, body) {
 			if(error || !body) {
 				res.send(error);
@@ -80,36 +76,36 @@ cibap = {
 			var body = JSON.parse(body);
 
 			for (i = 0; i < 5; i++) {
-				var dag = i+1,
-					old = '';
-				if(!body[dag]) {
+				var day = i+1,
+						old = '';
+				if(!body[day]) {
 					return;
 				}
 
-				body[dag].forEach(function(uur, key){
+				body[day].forEach(function(houre, key){
 					if(key == 15) {
 						create(old, key);
 					} else {
 						if(old == '') {
-							old = lesuuren[key].start;
+							old = timetable[key].start;
 						}
 
-						if(uur[0] != body[dag][key+1][0]) {
+						if(houre[0] != body[day][key+1][0]) {
 							create(old, key);
 							old = '';
 						}
 					}
 
 					function create(start, close) {
-						var startLes = moment(start).weekday(dag);
-						var endLes = moment(lesuuren[close].end).weekday(dag);
-						if(uur[0]) {
+						var startLes = moment(start).weekday(day);
+						var endLes = moment(timetable[close].end).weekday(day);
+						if(houre[0]) {
 							cal.addEvent({
 							    start: startLes._d,
 							    end: endLes._d,
-							    summary: uur[0],
-							    description: uur[2],
-							    location: uur[1]
+							    summary: houre[0],
+							    description: houre[2],
+							    location: houre[1]
 							});
 						}
 					}
